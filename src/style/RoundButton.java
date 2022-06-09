@@ -8,12 +8,17 @@ import java.awt.event.*;
 public class RoundButton extends JButton {
 	private Color background;
 	private Color bgClicked;
-	private Color border; 
+	private Color border;
+	private int thickness;
+	private int broken;
+	
 	public RoundButton(String label) {
 		super(label);
 		this.background = Color.decode("#F8EFD4");
 		this.bgClicked = Color.decode("#F5DEB3");
-		this.border = Color.decode("#FDA172");
+		this.border = Color.decode("#E88D67");
+		this.thickness = 1;
+		this.broken = 0;
 		//setBackground(Color.lightGray);
 		setFocusable(false);
 
@@ -42,6 +47,21 @@ public class RoundButton extends JButton {
 		setPreferredSize(size);
 		setContentAreaFilled(false);
 	}
+	
+	public RoundButton (String label, int thickness, int broken) {
+		super(label);
+		this.background = Color.decode("#F8EFD4");
+		this.bgClicked = Color.decode("#F5DEB3");
+		this.border = Color.decode("#E88D67");
+		this.thickness = thickness;
+		this.broken = broken;
+		setFocusable(false);
+
+		Dimension size = getPreferredSize();
+		size.width = size.height = Math.max(size.width, size.height);
+		setPreferredSize(size);
+		setContentAreaFilled(false);
+	}
 
 	protected void paintComponent(Graphics g) {
 		if (getModel().isArmed()) {
@@ -53,10 +73,22 @@ public class RoundButton extends JButton {
 
 		super.paintComponent(g);
 	}
+	
+	public void setBgColor(Color background, Color bgClicked) {
+		this.background = background;
+		this.bgClicked = bgClicked;
+	}
 
 	protected void paintBorder(Graphics g) {
-		g.setColor(border);
-		g.drawOval(0, 0, getSize().width - 1, getSize().height - 1);
+		Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(thickness));
+        g2.setColor(border);
+		g2.drawOval(broken, broken, getSize().width - 1, getSize().height - 1);
+	}
+	
+	public void setBorderColor(Color border, Color bgClicked) {
+		this.border = border;
+		this.bgClicked = bgClicked;
 	}
 
 	// Hit detection.
@@ -70,7 +102,7 @@ public class RoundButton extends JButton {
 		return shape.contains(x, y);
 	}
 }
-	/*
+/*	
 	public static void main(String[] args) {
 
 		JFrame.setDefaultLookAndFeelDecorated(true);
@@ -86,4 +118,4 @@ public class RoundButton extends JButton {
 		frame.setSize(300, 150);
 		frame.setVisible(true);
 	}
-	*/
+*/

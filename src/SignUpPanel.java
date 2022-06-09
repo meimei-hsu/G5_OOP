@@ -3,6 +3,7 @@ import java.awt.event.*;
 import java.awt.font.TextAttribute;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Map;
 
@@ -19,56 +20,54 @@ public class SignUpPanel extends JPanel {
 	private JButton signUpButton;
 	private JButton loginButton;
 	private Connection conn;
-
+	
 	public SignUpPanel() {
 		try {
 			String server = "jdbc:mysql://140.119.19.73:9306/";
 			String database = "MG05";
-			String url = server + database;
+			String url = server + database + "?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&failOverReadOnly=false";
 			String username = "MG05";
 			String password = "9mMuzQ";
 			conn = DriverManager.getConnection(url, username, password);
 		} catch (Exception e) {
-			e.getMessage();
+			System.out.println("<SignUpPanel> constructor: " + e.getMessage());
 		}
-
 		createComp();
 	}
 
 	public void createComp() {
 		ImageIcon signUpIcon = new ImageIcon(
-				new ImageIcon("images/signUp.png").getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
-		signUpImg = new JLabel("SIGN UP", signUpIcon, SwingConstants.CENTER);
+				new ImageIcon("images/signUp.png").getImage().getScaledInstance(60, 60, Image.SCALE_DEFAULT));
+		signUpImg = new JLabel("Sign Up", signUpIcon, SwingConstants.CENTER);
 		signUpImg.setVerticalTextPosition(SwingConstants.CENTER);
 		signUpImg.setHorizontalTextPosition(SwingConstants.RIGHT);
-		signUpImg.setFont(new Font("Comic Sans MS", Font.BOLD, 20));
-		signUpImg.setForeground(Color.decode("#FDA172"));
+		signUpImg.setFont(new Font("Lucida Handwriting", Font.BOLD, 40));
+		signUpImg.setForeground(Color.decode("#E88D67"));
 
 		ImageIcon idIcon = new ImageIcon(
-				new ImageIcon("images/ID.png").getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT));
+				new ImageIcon("images/ID.png").getImage().getScaledInstance(40, 40, Image.SCALE_DEFAULT));
 		userIDLabel = new JLabel("User ID", idIcon, SwingConstants.CENTER);
 		userIDLabel.setVerticalTextPosition(SwingConstants.CENTER);
 		userIDLabel.setHorizontalTextPosition(SwingConstants.RIGHT);
+		userIDLabel.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 		userIDField = new JTextField(FEILD_WIDTH);
 
 		ImageIcon passwordIcon = new ImageIcon(
-				new ImageIcon("images/password.png").getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT));
+				new ImageIcon("images/password.png").getImage().getScaledInstance(40, 40, Image.SCALE_DEFAULT));
 		passwordLabel = new JLabel("Password", passwordIcon, SwingConstants.CENTER);
 		passwordLabel.setVerticalTextPosition(SwingConstants.CENTER);
 		passwordLabel.setHorizontalTextPosition(SwingConstants.RIGHT);
+		passwordLabel.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 		passwordField = new JPasswordField(FEILD_WIDTH);
 
 		signUpButton = new JButton("Sign up");
-		signUpButton.setPreferredSize(new Dimension(100, 22));
+		signUpButton.setFont(new Font("Times New Roman", Font.PLAIN, 20));
+		signUpButton.setPreferredSize(new Dimension(120, 25));
 		signUpButton.setBorder(new BubbleBorder(Color.decode("#FDA172"), 2, 20, 0));
 		signUpButton.setContentAreaFilled(false);
 		
-		loginButton = new JButton("Login");
-		Font btnFont = new Font(null, Font.BOLD, 15);
-		Map attributes = btnFont.getAttributes();
-		attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-		btnFont = btnFont.deriveFont(attributes);
-		loginButton.setFont(btnFont);
+		loginButton = new JButton("<html><u>Login</u></html>");
+		loginButton.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		loginButton.setForeground(Color.lightGray);
 		loginButton.setBorder(null);
 		loginButton.setContentAreaFilled(false);
@@ -85,6 +84,7 @@ public class SignUpPanel extends JPanel {
 
 		signUpPanel = new JPanel(new GridBagLayout());
 		signUpPanel.setBackground(Color.decode("#F8EFD4"));
+		signUpPanel.setPreferredSize(new Dimension(100, 100));
 		GridBagConstraints gbc1 = new GridBagConstraints();
 		gbc1.gridx = 0;
 		gbc1.gridy = 0;
@@ -115,7 +115,7 @@ public class SignUpPanel extends JPanel {
 		gbc2.gridy = 0;
 		gbc2.weightx = 1.0;
 		gbc2.weighty = 1.0;
-		gbc2.insets = new Insets(20, 0, 0, 0);
+		gbc2.insets = new Insets(50, 0, 0, 0);
 		gbc2.anchor = GridBagConstraints.NORTH;
 		add(signUpImg, gbc2);
 		
@@ -125,6 +125,7 @@ public class SignUpPanel extends JPanel {
 		gbc2.weightx = 1.0;
 		gbc2.weighty = 1.0;
 		gbc2.anchor = GridBagConstraints.CENTER;
+		gbc2.fill = GridBagConstraints.BOTH;
 		add(signUpPanel, gbc2);
 		
 		gbc2 = new GridBagConstraints();
@@ -132,7 +133,7 @@ public class SignUpPanel extends JPanel {
 		gbc2.gridy = 2;
 		gbc2.weightx = 1.0;
 		gbc2.weighty = 1.0;
-		gbc2.insets = new Insets(0, 0, 30, 0);
+		gbc2.insets = new Insets(0, 0, 50, 0);
 		gbc2.anchor = GridBagConstraints.SOUTH;
 		add(loginButton, gbc2);
 	}
@@ -143,14 +144,25 @@ public class SignUpPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					Statement stat = conn.createStatement();
-					String ID = userIDField.getText();
+					String userID = userIDField.getText();
 					String password = String.valueOf(passwordField.getPassword());
 
-					String query = "INSERT INTO Member VALUES('" + ID + "', '" + password + "');";
+					String query1 = "SELECT COUNT(*) FROM Member WHERE ID ='" + userID + "'";
+					stat.execute(query1);
+
+					ResultSet result = stat.getResultSet();
+					result.next();
+					int count = Integer.parseInt(result.getString(1));
+					if (count == 0) {
+					String query = "INSERT INTO Member VALUES('" + userID + "', '" + password + "');";
 					stat.execute(query);
-					cardLayout.show(panel, "3");
+					JOptionPane.showMessageDialog(null, "Succesfully signed up!", "Success", JOptionPane.INFORMATION_MESSAGE);
+					cardLayout.show(panel, "loginPanel");
 					userIDField.setText(null);
 					passwordField.setText(null);
+					} else {
+						JOptionPane.showMessageDialog(null, "UserID already exist!", "Error", JOptionPane.ERROR_MESSAGE);
+					}
 
 				} catch (Exception exception) {
 					exception.getMessage();
@@ -166,7 +178,9 @@ public class SignUpPanel extends JPanel {
 			CardLayout cardLayout = (CardLayout) (panel.getLayout());
 
 			public void actionPerformed(ActionEvent e) {
-				cardLayout.show(panel, "1");
+				cardLayout.show(panel, "loginPanel");
+				userIDField.setText(null);
+				passwordField.setText(null);
 			}
 		}
 		ClickListener listener = new ClickListener();
